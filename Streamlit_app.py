@@ -236,56 +236,53 @@ st.markdown("Your AI assistant for buying the best tech products 💻🎧")
 # Tabs
 tab1, tab2 = st.tabs(["💬 Chat", "📋 History"])
 
+
 with tab1:
-   with tab1:
-    # Chat messages
+    # =========================
+    # SHOW CHAT HISTORY
+    # =========================
     for human_msg, ai_msg in st.session_state.chat_history:
-        ...
+        st.markdown(f'<div class="user-message">👤 {human_msg}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="bot-message">🤖 {ai_msg}</div>', unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns([5, 1, 1])
-
-    with col1:
-        st.text_input(
+    # =========================
+    # CHAT INPUT (SAFE FORM)
+    # =========================
+    with st.form("chat_form", clear_on_submit=True):
+        user_text = st.text_input(
             "message",
             placeholder="Ask about products, prices, delivery...",
-            label_visibility="collapsed",
-            key="input_box"
+            label_visibility="collapsed"
         )
 
-    with col2:
-        send_clicked = st.button("Send ➤")
+        submit = st.form_submit_button("Send ➤")
 
-    with col3:
-        clear_clicked = st.button("Clear")
-
-    # CLEAR
-    if clear_clicked:
-        st.session_state.chat_history = []
-        st.session_state.input_box = ""
-        st.rerun()
-
-    # SEND
-    if send_clicked and st.session_state.get("input_box"):
+    # =========================
+    # HANDLE MESSAGE
+    # =========================
+    if submit and user_text:
         with st.spinner("Thinking..."):
             response = get_ai_response(
-                st.session_state.input_box,
+                user_text,
                 st.session_state.chat_history
             )
 
-            st.session_state.chat_history.append(
-                (st.session_state.input_box, response)
-            )
+            st.session_state.chat_history.append((user_text, response))
 
-            save_message("user", st.session_state.input_box)
+            save_message("user", user_text)
             save_message("assistant", response)
 
-            st.session_state.input_box = ""
+    # =========================
+    # CLEAR BUTTON (SAFE)
+    # =========================
+    if st.button("Clear Chat"):
+        st.session_state.chat_history = []
 
-        st.rerun()
-
-    # ✅ ORDER SECTION (INSIDE TAB)
+    # =========================
+    # ORDER SECTION
+    # =========================
     st.markdown("### 📦 Place an Order")
 
     name = st.text_input("Your Name")

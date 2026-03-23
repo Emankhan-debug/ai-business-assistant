@@ -2,6 +2,7 @@ import streamlit as st
 import sqlite3
 from groq import Groq
 from datetime import datetime
+import os
 
 # ================================
 # YOUR API KEY
@@ -126,6 +127,26 @@ def save_message(role, message):
     )
     conn.commit()
     conn.close()
+def save_lead(name, phone, product):
+    conn = sqlite3.connect("leads.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS leads (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            phone TEXT,
+            product TEXT,
+            timestamp TEXT
+        )
+    """)
+    
+    cursor.execute(
+        "INSERT INTO leads (name, phone, product, timestamp) VALUES (?, ?, ?, ?)",
+        (name, phone, product, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    )
+    
+    conn.commit()
+    conn.close()
 
 def load_history():
     conn = sqlite3.connect("history.db")
@@ -159,8 +180,16 @@ Always be polite and helpful.
 # ================================
 # AI FUNCTION
 # ================================
-client = Groq(api_key=API_KEY)
 
+from groq import Groq
+import streamlit as st
+
+try:
+    API_KEY = st.secrets["GROQ_API_KEY"]   # for global
+except:
+    API_KEY = " "     # for local
+
+client = Groq(api_key=API_KEY)
 def get_ai_response(message, chat_history):
     messages = [{"role": "system", "content": BUSINESS_INFO}]
     for human_msg, ai_msg in chat_history:
@@ -238,6 +267,24 @@ with tab1:
         st.session_state.chat_history = []
         st.rerun()
 
+    # =========================
+    # ✅ ADD ORDER SECTION HERE
+    # =========================
+    st.markdown("### 📦 Place an Order")
+
+    name = st.text_input("Your Name")
+    phone = st.text_input("Phone Number")
+    product = st.selectbox(
+        "Select Product",
+        ["Laptop", "Gaming PC", "Mouse", "Keyboard", "Headphones"]
+    )
+
+    if st.button("Submit Order"):
+        if name and phone:
+            save_lead(name, phone, product)
+            st.success("Order submitted! We will contact you soon.")
+        else:
+            st.warning("Please fill all fields")
 with tab2:
     st.markdown("<h3 style='color:#e2e8f0'>Conversation History</h3>", unsafe_allow_html=True)
     
@@ -251,3 +298,5 @@ with tab2:
                     st.markdown(f'<div class="user-message">👤 [{timestamp}] {message}</div>', unsafe_allow_html=True)
                 else:
                     st.markdown(f'<div class="bot-message">🤖 [{timestamp}] {message}</div>', unsafe_allow_html=True)
+                    st.markdown("### 📦 Place an Order")
+

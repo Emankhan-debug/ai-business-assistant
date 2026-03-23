@@ -254,20 +254,22 @@ with tab1:
     
     with col2:
         send_clicked = st.button("Send ➤")
-    
-    # Handle message
-    if send_clicked and user_input:
-        with st.spinner("Thinking..."):
-            response = get_ai_response(user_input, st.session_state.chat_history)
-            st.session_state.chat_history.append((user_input, response))
-            save_message("user", user_input)
-            save_message("assistant", response)
-        st.rerun()
-    
-    # Clear button
-    if st.button("Clear Chat"):
-        st.session_state.chat_history = []
-        st.rerun()
+        # Clear button FIRST
+clear_clicked = st.button("Clear Chat")
+
+if clear_clicked:
+    st.session_state.chat_history = []
+    st.session_state.user_input = ""   # clear input too
+    st.rerun()
+
+# THEN handle message
+if send_clicked and user_input:
+    with st.spinner("Thinking..."):
+        response = get_ai_response(user_input, st.session_state.chat_history)
+        st.session_state.chat_history.append((user_input, response))
+        save_message("user", user_input)
+        save_message("assistant", response)
+    st.rerun()
 
     # =========================
     # ✅ ADD ORDER SECTION HERE

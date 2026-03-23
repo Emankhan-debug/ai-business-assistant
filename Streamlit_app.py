@@ -228,6 +228,8 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+st.markdown("## 🛍️ Welcome to TechStore Pakistan")
+st.markdown("Your AI assistant for buying the best tech products 💻🎧")
 
 # Tabs
 tab1, tab2 = st.tabs(["💬 Chat", "📋 History"])
@@ -286,8 +288,10 @@ with tab1:
         else:
             st.warning("Please fill all fields")
 with tab2:
+
+    # 📋 HISTORY FIRST
     st.markdown("<h3 style='color:#e2e8f0'>Conversation History</h3>", unsafe_allow_html=True)
-    
+
     if st.button("Load History"):
         rows = load_history()
         if not rows:
@@ -295,8 +299,23 @@ with tab2:
         else:
             for role, message, timestamp in rows:
                 if role == "user":
-                    st.markdown(f'<div class="user-message">👤 [{timestamp}] {message}</div>', unsafe_allow_html=True)
+                    st.markdown(f"👤 {message}")
                 else:
-                    st.markdown(f'<div class="bot-message">🤖 [{timestamp}] {message}</div>', unsafe_allow_html=True)
-                    st.markdown("### 📦 Place an Order")
+                    st.markdown(f"🤖 {message}")
 
+    # 📦 THEN ORDERS
+    import pandas as pd
+
+    st.markdown("## 📦 Customer Orders")
+
+    if st.button("View Orders"):
+        conn = sqlite3.connect("leads.db")
+        df = pd.read_sql_query("SELECT * FROM leads", conn)
+        conn.close()
+
+        if df.empty:
+            st.info("No orders yet.")
+        else:
+            st.dataframe(df)
+    st.button("📂 Load Chat History")
+    st.button("📦 View Orders")

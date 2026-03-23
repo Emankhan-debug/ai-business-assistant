@@ -237,61 +237,60 @@ st.markdown("Your AI assistant for buying the best tech products 💻🎧")
 tab1, tab2 = st.tabs(["💬 Chat", "📋 History"])
 
 with tab1:
-    # Display chat messages
+   with tab1:
+    # Chat messages
     for human_msg, ai_msg in st.session_state.chat_history:
-        st.markdown(f'<div class="user-message">👤 {human_msg}</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="bot-message">🤖 {ai_msg}</div>', unsafe_allow_html=True)
-    
-    # Input area
+        ...
+
     st.markdown("<br>", unsafe_allow_html=True)
+
     col1, col2, col3 = st.columns([5, 1, 1])
 
-with col1:
-    user_input = st.text_input(
-        "message",
-        placeholder="Ask about products, prices, delivery...",
-        label_visibility="collapsed",
-        key="user_input"
-    )
-
-with col2:
-    send_clicked = st.button("Send ➤")
-
-with col3:
-    clear_clicked = st.button("Clear")
-
-# ✅ CLEAR FIX
-if clear_clicked:
-    st.session_state.chat_history = []
-    st.session_state.user_input = ""
-    st.rerun()
-
-# ✅ SEND FIX
-if send_clicked and st.session_state.get("user_input"):
-    with st.spinner("Thinking..."):
-        response = get_ai_response(
-            st.session_state.user_input,
-            st.session_state.chat_history
+    with col1:
+        st.text_input(
+            "message",
+            placeholder="Ask about products, prices, delivery...",
+            label_visibility="collapsed",
+            key="input_box"
         )
 
-        st.session_state.chat_history.append(
-            (st.session_state.user_input, response)
-        )
+    with col2:
+        send_clicked = st.button("Send ➤")
 
-        save_message("user", st.session_state.user_input)
-        save_message("assistant", response)
+    with col3:
+        clear_clicked = st.button("Clear")
 
-        st.session_state.user_input = ""
+    # CLEAR
+    if clear_clicked:
+        st.session_state.chat_history = []
+        st.session_state.input_box = ""
+        st.rerun()
 
-    st.rerun()
+    # SEND
+    if send_clicked and st.session_state.get("input_box"):
+        with st.spinner("Thinking..."):
+            response = get_ai_response(
+                st.session_state.input_box,
+                st.session_state.chat_history
+            )
 
-    # =========================
-    # ✅ ADD ORDER SECTION HERE
-    # =========================
+            st.session_state.chat_history.append(
+                (st.session_state.input_box, response)
+            )
+
+            save_message("user", st.session_state.input_box)
+            save_message("assistant", response)
+
+            st.session_state.input_box = ""
+
+        st.rerun()
+
+    # ✅ ORDER SECTION (INSIDE TAB)
     st.markdown("### 📦 Place an Order")
 
     name = st.text_input("Your Name")
     phone = st.text_input("Phone Number")
+
     product = st.selectbox(
         "Select Product",
         ["Laptop", "Gaming PC", "Mouse", "Keyboard", "Headphones"]

@@ -249,7 +249,7 @@ with tab1:
 with col1:
     user_input = st.text_input(
         "message",
-        placeholder="Ask about products, prices, delivery..."
+        placeholder="Ask about products, prices, delivery...",
         label_visibility="collapsed",
         key="user_input"
     )

@@ -4,6 +4,13 @@ from groq import Groq
 from datetime import datetime
 import os
 
+
+if "user_input" not in st.session_state:
+    st.session_state.user_input = ""
+
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
 # ================================
 # YOUR API KEY
 # ================================
@@ -209,11 +216,6 @@ def get_ai_response(message, chat_history):
 # INITIALIZE
 # ================================
 init_db()
-
-# Session state keeps chat history while app is running
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
 # ================================
 # UI LAYOUT
 # ================================
@@ -242,33 +244,45 @@ with tab1:
     
     # Input area
     st.markdown("<br>", unsafe_allow_html=True)
-    col1, col2 = st.columns([5, 1])
-    
-    with col1:
-        user_input = st.text_input(
-            "message",
-            placeholder="Ask about products, prices, delivery...",
-            label_visibility="collapsed",
-            key="user_input"
-        )
-    
-    with col2:
-        send_clicked = st.button("Send ➤")
-        # Clear button FIRST
-clear_clicked = st.button("Clear Chat")
+    col1, col2, col3 = st.columns([5, 1, 1])
 
+with col1:
+    user_input = st.text_input(
+        "message",
+        placeholder="Ask about products, prices, delivery..."
+        label_visibility="collapsed",
+        key="user_input"
+    )
+
+with col2:
+    send_clicked = st.button("Send ➤")
+
+with col3:
+    clear_clicked = st.button("Clear")
+
+# ✅ CLEAR FIX
 if clear_clicked:
     st.session_state.chat_history = []
-    st.session_state.user_input = ""   # clear input too
+    st.session_state.user_input = ""
     st.rerun()
 
-# THEN handle message
-if send_clicked and user_input:
+# ✅ SEND FIX
+if send_clicked and st.session_state.get("user_input"):
     with st.spinner("Thinking..."):
-        response = get_ai_response(user_input, st.session_state.chat_history)
-        st.session_state.chat_history.append((user_input, response))
-        save_message("user", user_input)
+        response = get_ai_response(
+            st.session_state.user_input,
+            st.session_state.chat_history
+        )
+
+        st.session_state.chat_history.append(
+            (st.session_state.user_input, response)
+        )
+
+        save_message("user", st.session_state.user_input)
         save_message("assistant", response)
+
+        st.session_state.user_input = ""
+
     st.rerun()
 
     # =========================

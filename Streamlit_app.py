@@ -199,7 +199,9 @@ except:
 client = Groq(api_key=API_KEY)
 def get_ai_response(message, chat_history):
     messages = [{"role": "system", "content": BUSINESS_INFO}]
-    for human_msg, ai_msg in chat_history:
+      
+    for human_msg, ai_msg in chat_history[-3:]:
+    
         messages.append({"role": "user", "content": human_msg})
         messages.append({"role": "assistant", "content": ai_msg})
     messages.append({"role": "user", "content": message})

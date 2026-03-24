@@ -334,88 +334,88 @@ with tab2:
     st.button("📂 Load Chat History")
     st.button("📦 View Orders")
     with tab3:
-    st.markdown("<h3 style='color:#e2e8f0'>Admin Panel</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='color:#e2e8f0'>Admin Panel</h3>", unsafe_allow_html=True)
     
-    # ==============================
-    # LOGIN
-    # ==============================
-    if not st.session_state.admin_logged_in:
-        st.markdown("<p style='color:#94a3b8'>Enter admin password to continue</p>", unsafe_allow_html=True)
+        # ==============================
+        # LOGIN
+        # ==============================
+        if not st.session_state.admin_logged_in:
+            st.markdown("<p style='color:#94a3b8'>Enter admin password to continue</p>", unsafe_allow_html=True)
+            
+            password = st.text_input("Password", type="password")
+            
+            if st.button("Login"):
+                if password == "admin123":
+                    st.session_state.admin_logged_in = True
+                    st.rerun()
+                else:
+                    st.error("Wrong password!")
         
-        password = st.text_input("Password", type="password")
-        
-        if st.button("Login"):
-            if password == "admin123":
-                st.session_state.admin_logged_in = True
-                st.rerun()
-            else:
-                st.error("Wrong password!")
-    
-    # ==============================
-    # ADMIN DASHBOARD (after login)
-    # ==============================
-    else:
-        st.success("Welcome, Admin!")
-        
-        # Stats row
-        col1, col2, col3 = st.columns(3)
-        
-        # Count conversations
-        conn = sqlite3.connect("history.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM conversations")
-        total_messages = cursor.fetchone()[0]
-        conn.close()
-        
-        # Count orders
-        try:
-            conn = sqlite3.connect("leads.db")
-            cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM leads")
-            total_orders = cursor.fetchone()[0]
-            conn.close()
-        except:
-            total_orders = 0
-        
-        with col1:
-            st.metric("Total Messages", total_messages)
-        
-        with col2:
-            st.metric("Total Orders", total_orders)
-        
-        with col3:
-            st.metric("Active Sessions", len(st.session_state.chat_history))
-        
-        st.markdown("---")
-        
-        # Orders table
-        st.markdown("### 📦 All Customer Orders")
-        try:
-            conn = sqlite3.connect("leads.db")
-            df_orders = pd.read_sql_query("SELECT * FROM leads ORDER BY timestamp DESC", conn)
-            conn.close()
-            if df_orders.empty:
-                st.info("No orders yet.")
-            else:
-                st.dataframe(df_orders, use_container_width=True)
-        except:
-            st.info("No orders yet.")
-        
-        st.markdown("---")
-        
-        # Conversations table
-        st.markdown("### 💬 All Conversations")
-        conn = sqlite3.connect("history.db")
-        df_conv = pd.read_sql_query("SELECT * FROM conversations ORDER BY timestamp DESC LIMIT 50", conn)
-        conn.close()
-        if df_conv.empty:
-            st.info("No conversations yet.")
+        # ==============================
+        # ADMIN DASHBOARD (after login)
+        # ==============================
         else:
-            st.dataframe(df_conv, use_container_width=True)
-        
-        st.markdown("---")
-        
-        # Logout button
-        if st.button("Logout"):
-            st.session_state.admin_logged_in = False
-            st.rerun()
+            st.success("Welcome, Admin!")
+            
+            # Stats row
+            col1, col2, col3 = st.columns(3)
+            
+            # Count conversations
+            conn = sqlite3.connect("history.db")
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM conversations")
+            total_messages = cursor.fetchone()[0]
+            conn.close()
+            
+            # Count orders
+            try:
+                conn = sqlite3.connect("leads.db")
+                cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) FROM leads")
+                total_orders = cursor.fetchone()[0]
+                conn.close()
+            except:
+                total_orders = 0
+            
+            with col1:
+                st.metric("Total Messages", total_messages)
+            
+            with col2:
+                st.metric("Total Orders", total_orders)
+            
+            with col3:
+                st.metric("Active Sessions", len(st.session_state.chat_history))
+            
+            st.markdown("---")
+            
+            # Orders table
+            st.markdown("### 📦 All Customer Orders")
+            try:
+                conn = sqlite3.connect("leads.db")
+                df_orders = pd.read_sql_query("SELECT * FROM leads ORDER BY timestamp DESC", conn)
+                conn.close()
+                if df_orders.empty:
+                    st.info("No orders yet.")
+                else:
+                    st.dataframe(df_orders, use_container_width=True)
+            except:
+                st.info("No orders yet.")
+            
+            st.markdown("---")
+            
+            # Conversations table
+            st.markdown("### 💬 All Conversations")
+            conn = sqlite3.connect("history.db")
+            df_conv = pd.read_sql_query("SELECT * FROM conversations ORDER BY timestamp DESC LIMIT 50", conn)
+            conn.close()
+            if df_conv.empty:
+                st.info("No conversations yet.")
+            else:
+                st.dataframe(df_conv, use_container_width=True)
+            
+            st.markdown("---")
+            
+            # Logout button
+            if st.button("Logout"):
+                st.session_state.admin_logged_in = False
+                st.rerun()

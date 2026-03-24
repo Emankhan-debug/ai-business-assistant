@@ -331,8 +331,6 @@ with tab2:
             st.info("No orders yet.")
         else:
             st.dataframe(df)
-    st.button("📂 Load Chat History")
-    st.button("📦 View Orders")
     with tab3:
         st.markdown("<h3 style='color:#e2e8f0'>Admin Panel</h3>", unsafe_allow_html=True)
     

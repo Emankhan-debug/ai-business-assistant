@@ -207,9 +207,9 @@ def get_ai_response(message, chat_history):
     messages.append({"role": "user", "content": message})
     
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="llama-3.1-8b-versatile",
         messages=messages,
-        max_tokens=500,
+        max_tokens=300,
         temperature=0.7
     )
     return response.choices[0].message.content
